@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
-import { AppView } from './types.ts';
-import Sidebar from './components/Sidebar.tsx';
-import ChatView from './components/ChatView.tsx';
-import LiveView from './components/LiveView.tsx';
-import ArtView from './components/ArtView.tsx';
-import LoginView from './components/LoginView.tsx';
+import { AppView } from './types';
+import Sidebar from './components/Sidebar';
+import ChatView from './components/ChatView';
+import LiveView from './components/LiveView';
+import ArtView from './components/ArtView';
+import LoginView from './components/LoginView';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.CHAT);

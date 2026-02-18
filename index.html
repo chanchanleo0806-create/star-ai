@@ -9,12 +9,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Babel Standalone: Browser-side JSX/TSX Transpiler -->
+  <!-- Babel: TSX 변환기 -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <style>
     body {
-      font-family: 'Inter', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      font-family: 'Inter', sans-serif;
       background-color: #020617;
       color: #f8fafc;
       overflow: hidden;
@@ -25,7 +25,6 @@
       z-index: 10;
       height: 100vh;
       width: 100vw;
-      display: block;
     }
     .glass-morphism {
       background: rgba(15, 23, 42, 0.85);
@@ -35,43 +34,30 @@
     }
     .star-bg {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0; width: 100%; height: 100%;
       z-index: -1;
       background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
     }
     .star {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-      opacity: 0.3;
+      position: absolute; background: white; border-radius: 50%; opacity: 0.3;
       animation: twinkle var(--duration) infinite ease-in-out;
     }
     @keyframes twinkle {
       0%, 100% { opacity: 0.2; transform: scale(1); }
       50% { opacity: 0.7; transform: scale(1.2); }
     }
-    #error-overlay {
+    #emergency-btn {
       display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      background: rgba(0,0,0,0.9);
-      color: #ff4444;
-      padding: 2rem;
-      font-family: monospace;
-      font-size: 14px;
-      overflow: auto;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #f59e0b;
+      color: white;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      animation: fadeIn 0.5s ease-out;
     }
-    .fast-pulse {
-      animation: pulse 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .5; }
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   </style>
 
   <script type="importmap">
@@ -88,20 +74,20 @@
 </script>
 </head>
 <body>
-  <div id="error-overlay"></div>
   <div class="star-bg" id="star-container"></div>
   <div id="root">
-    <!-- 정적 로딩 화면 (React 로드 전) -->
+    <!-- 초기 로딩 UI -->
     <div class="flex flex-col items-center justify-center h-full space-y-4">
       <div class="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
-      <div class="text-amber-500 font-black fast-pulse text-lg tracking-widest uppercase">Star AI Initializing</div>
+      <div class="text-amber-500 font-black animate-pulse text-lg tracking-widest uppercase">Star AI Initializing</div>
+      <button id="emergency-btn" onclick="location.reload()">새로고침하여 다시 시작</button>
     </div>
   </div>
 
   <script>
+    // 별 배경 생성
     const container = document.getElementById('star-container');
-    const count = 100;
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < 80; i++) {
       const star = document.createElement('div');
       star.className = 'star';
       const size = Math.random() * 2 + 0.5;
@@ -110,18 +96,20 @@
       star.style.left = Math.random() * 100 + '%';
       star.style.top = Math.random() * 100 + '%';
       star.style.setProperty('--duration', (Math.random() * 2 + 1) + 's');
-      star.style.animationDelay = (Math.random() * 2) + 's';
       container.appendChild(star);
     }
 
-    window.onerror = function(msg, url, line, col, error) {
-      const overlay = document.getElementById('error-overlay');
-      overlay.style.display = 'block';
-      overlay.innerHTML += `<div><b>Error:</b> ${msg}</div>`;
-      return false;
-    };
+    // 5초 후에도 로딩이 안 되면 비상 버튼 표시
+    setTimeout(() => {
+      const btn = document.getElementById('emergency-btn');
+      const root = document.getElementById('root');
+      if (root && root.innerText.includes('Star AI Initializing')) {
+        btn.style.display = 'block';
+      }
+    }, 5000);
   </script>
 
+  <!-- index.tsx 실행 -->
   <script type="text/babel" data-type="module" data-presets="react,typescript" src="./index.tsx"></script>
 </body>
 </html>

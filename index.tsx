@@ -1,14 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
+import App from './App'; // .tsx 확장자 제거 (MIME 오류 방지)
 
-console.log("Star AI Engine: Initializing bootstrap sequence...");
+console.log("Star AI Engine: Bootstrap initiated.");
 
-const rootElement = document.getElementById('root');
+const startApp = () => {
+  const rootElement = document.getElementById('root');
+  if (!rootElement) return;
 
-if (!rootElement) {
-  console.error("Star AI Engine: Critical Error - Root element not found.");
-} else {
   try {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
@@ -16,13 +15,22 @@ if (!rootElement) {
         <App />
       </React.StrictMode>
     );
-    console.log("Star AI Engine: Application successfully mounted.");
+    console.log("Star AI Engine: App mounted successfully.");
   } catch (err) {
-    console.error("Star AI Engine: Mount failed!", err);
-    rootElement.innerHTML = `<div style="color: white; text-align: center; padding-top: 50px;">
-      <h2 style="color: #f59e0b;">시스템 초기화 실패</h2>
-      <p style="color: #64748b;">${err.message}</p>
-      <button onclick="location.reload()" style="background: #f59e0b; color: white; border: 0; padding: 10px 20px; border-radius: 8px; margin-top: 20px; cursor: pointer;">다시 시도</button>
-    </div>`;
+    console.error("Star AI Engine: Mount failed.", err);
+    rootElement.innerHTML = `
+      <div style="padding: 20px; color: white; text-align: center;">
+        <h1 style="color: #f59e0b;">엔진 구동 오류</h1>
+        <p>${err.message}</p>
+        <button onclick="location.reload()" style="background: #f59e0b; color: white; border: 0; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px;">다시 시도</button>
+      </div>
+    `;
   }
+};
+
+// DOM이 완전히 준비된 후 실행
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
 }
