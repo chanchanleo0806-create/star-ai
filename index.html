@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Babel for running TSX in browser (GitHub Pages specific fix) -->
+  <!-- Babel Standalone: Browser-side JSX/TSX Transpiler -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <style>
@@ -21,16 +21,17 @@
       margin: 0;
     }
     #root {
-      height: 100vh;
-      width: 100vw;
       position: relative;
       z-index: 10;
+      height: 100vh;
+      width: 100vw;
+      display: block;
     }
     .glass-morphism {
-      background: rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
     .star-bg {
       position: fixed;
@@ -38,7 +39,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 0;
+      z-index: -1; /* 별 배경을 최하단 레이어로 배치 */
       background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
     }
     .star {
@@ -56,12 +57,13 @@
       display: none;
       position: fixed;
       inset: 0;
-      z-index: 100;
-      background: rgba(0,0,0,0.8);
-      color: white;
+      z-index: 1000;
+      background: rgba(0,0,0,0.9);
+      color: #ff4444;
       padding: 2rem;
       font-family: monospace;
-      white-space: pre-wrap;
+      font-size: 14px;
+      overflow: auto;
     }
   </style>
 
@@ -81,35 +83,40 @@
 <body>
   <div id="error-overlay"></div>
   <div class="star-bg" id="star-container"></div>
-  <div id="root"></div>
+  <div id="root">
+    <!-- 로딩 중 표시 -->
+    <div className="flex items-center justify-center h-full">
+      <div className="text-amber-500 font-bold animate-pulse text-xl">스타 AI 엔진 부팅 중...</div>
+    </div>
+  </div>
 
   <script>
-    // Star background animation
+    // 별 배경 생성
     const container = document.getElementById('star-container');
-    const count = 150;
+    const count = 100;
     for (let i = 0; i < count; i++) {
       const star = document.createElement('div');
       star.className = 'star';
-      const size = Math.random() * 2 + 1;
-      star.style.width = `${size}px`;
-      star.style.height = `${size}px`;
-      star.style.left = `${Math.random() * 100}%`;
-      star.style.top = `${Math.random() * 100}%`;
-      star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
-      star.style.animationDelay = `${Math.random() * 5}s`;
+      const size = Math.random() * 2 + 0.5;
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+      star.style.animationDelay = (Math.random() * 5) + 's';
       container.appendChild(star);
     }
 
-    // Error logging to screen
-    window.onerror = function(msg, url, line) {
+    // 전역 에러 캡처
+    window.onerror = function(msg, url, line, col, error) {
       const overlay = document.getElementById('error-overlay');
       overlay.style.display = 'block';
-      overlay.textContent += `Error: ${msg}\nAt: ${url}:${line}\n\n`;
+      overlay.innerHTML += `<div><b>Error:</b> ${msg}<br/><b>At:</b> ${url}:${line}:${col}</div><hr style="border:0;border-top:1px solid #333;margin:10px 0"/>`;
       return false;
     };
   </script>
 
-  <!-- Load index.tsx via Babel to handle TSX on GitHub Pages -->
-  <script type="text/babel" data-type="module" src="./index.tsx"></script>
+  <!-- index.tsx를 Babel을 통해 실행하도록 설정 -->
+  <script type="text/babel" data-type="module" data-presets="react,typescript" src="./index.tsx"></script>
 </body>
 </html>
