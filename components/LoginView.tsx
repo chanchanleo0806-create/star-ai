@@ -10,14 +10,11 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || isLoading) return;
     
     setIsLoading(true);
-    // 부팅 속도 향상을 위해 지연 시간을 300ms로 단축
-    setTimeout(() => {
-      onLogin(name.trim());
-      setIsLoading(false);
-    }, 300);
+    // 인공 지연 제거: 즉시 로그인 처리
+    onLogin(name.trim());
   };
 
   return (
