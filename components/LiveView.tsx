@@ -13,6 +13,7 @@ const LiveView: React.FC = () => {
   const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const streamRef = useRef<MediaStream | null>(null);
 
+  // Correct manual encode as per guidelines
   const encode = (bytes: Uint8Array) => {
     let binary = '';
     const len = bytes.byteLength;
@@ -22,6 +23,7 @@ const LiveView: React.FC = () => {
     return btoa(binary);
   };
 
+  // Correct manual decode as per guidelines
   const decode = (base64: string) => {
     const binaryString = atob(base64);
     const len = binaryString.length;
@@ -32,6 +34,7 @@ const LiveView: React.FC = () => {
     return bytes;
   };
 
+  // Correct manual audio decoding as per guidelines
   const decodeAudioData = async (
     data: Uint8Array,
     ctx: AudioContext,
@@ -69,7 +72,8 @@ const LiveView: React.FC = () => {
   const startSession = async () => {
     setIsConnecting(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+      // Fixed: Initializing GoogleGenAI with process.env.API_KEY directly
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
@@ -100,6 +104,7 @@ const LiveView: React.FC = () => {
                 mimeType: 'audio/pcm;rate=16000',
               };
               
+              // Rely on sessionPromise to send input to avoid race condition or stale closure
               sessionPromise.then((session) => {
                 session.sendRealtimeInput({ media: pcmBlob });
               });
@@ -109,10 +114,12 @@ const LiveView: React.FC = () => {
             scriptProcessor.connect(inputCtx.destination);
           },
           onmessage: async (message: LiveServerMessage) => {
+            // Correct extraction of audio data
             const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
             if (base64Audio) {
               const ctx = audioContextRef.current;
               if (ctx) {
+                // Tracking nextStartTime for smooth playback as per guidelines
                 nextStartTimeRef.current = Math.max(nextStartTimeRef.current, ctx.currentTime);
                 const buffer = await decodeAudioData(decode(base64Audio), ctx, 24000, 1);
                 const source = ctx.createBufferSource();

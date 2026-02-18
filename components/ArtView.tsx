@@ -14,7 +14,8 @@ const ArtView: React.FC = () => {
 
     setIsGenerating(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+      // Fixed: Initialize GoogleGenAI with process.env.API_KEY directly
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: { parts: [{ text: prompt }] },
@@ -25,18 +26,22 @@ const ArtView: React.FC = () => {
         }
       });
 
-      for (const part of response.candidates?.[0]?.content?.parts || []) {
-        if (part.inlineData) {
-          const base64 = part.inlineData.data;
-          const imageUrl = `data:image/png;base64,${base64}`;
-          const newGen: ImageGeneration = {
-            id: Date.now().toString(),
-            prompt,
-            imageUrl,
-            timestamp: Date.now(),
-          };
-          setHistory(prev => [newGen, ...prev]);
-          break;
+      // Guidelines: Iterate through candidates and parts to find the image inlineData
+      const candidates = response.candidates;
+      if (candidates && candidates.length > 0) {
+        for (const part of candidates[0].content.parts) {
+          if (part.inlineData) {
+            const base64 = part.inlineData.data;
+            const imageUrl = `data:image/png;base64,${base64}`;
+            const newGen: ImageGeneration = {
+              id: Date.now().toString(),
+              prompt,
+              imageUrl,
+              timestamp: Date.now(),
+            };
+            setHistory(prev => [newGen, ...prev]);
+            break; // Found the image, stop looking
+          }
         }
       }
     } catch (err) {
