@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   
+  <!-- Babel for browser-side JSX/TS conversion -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <style>
@@ -41,6 +42,13 @@
     "react-dom": "https://esm.sh/react-dom@19.0.0",
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "@google/genai": "https://esm.sh/@google/genai@1.41.0",
+    "./App.tsx": "./App.tsx",
+    "./types": "./types.ts",
+    "./components/Sidebar": "./components/Sidebar.tsx",
+    "./components/ChatView": "./components/ChatView.tsx",
+    "./components/LiveView": "./components/LiveView.tsx",
+    "./components/ArtView": "./components/ArtView.tsx",
+    "./components/LoginView": "./components/LoginView.tsx",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/"
   }
@@ -52,8 +60,9 @@
   <div id="root"></div>
 
   <script>
+    // 빠른 배경 렌더링
     const container = document.getElementById('star-container');
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 30; i++) {
       const star = document.createElement('div');
       star.className = 'star';
       star.style.width = Math.random() * 2 + 'px';
@@ -64,6 +73,9 @@
     }
   </script>
 
-  <script type="text/babel" data-type="module" data-presets="react,typescript" src="./index.tsx"></script>
+  <script type="text/babel" data-type="module" data-presets="react,typescript">
+    // 인라인 부트스트래퍼로 index.tsx 호출 시 발생하는 경로 지연 최소화
+    import './index.tsx';
+  </script>
 </body>
 </html>
