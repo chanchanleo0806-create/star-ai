@@ -7,9 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   
-  <!-- Babel: TSX 변환기 -->
+  <!-- Babel Standalone: 가장 안정적인 버전 사용 -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <style>
@@ -26,12 +26,6 @@
       height: 100vh;
       width: 100vw;
     }
-    .glass-morphism {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
     .star-bg {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -46,18 +40,29 @@
       0%, 100% { opacity: 0.2; transform: scale(1); }
       50% { opacity: 0.7; transform: scale(1.2); }
     }
-    #emergency-btn {
-      display: none;
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: #f59e0b;
-      color: white;
-      font-weight: bold;
-      border-radius: 12px;
-      cursor: pointer;
-      animation: fadeIn 0.5s ease-out;
+    .loading-text {
+      animation: fast-pulse 0.6s ease-in-out infinite;
     }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fast-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.98); }
+    }
+    #debug-console {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      color: #ff4444;
+      font-family: monospace;
+      font-size: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      display: none;
+      z-index: 1000;
+      max-height: 100px;
+      overflow-y: auto;
+    }
   </style>
 
   <script type="importmap">
@@ -74,42 +79,58 @@
 </script>
 </head>
 <body>
+  <div id="debug-console"></div>
   <div class="star-bg" id="star-container"></div>
+  
   <div id="root">
-    <!-- 초기 로딩 UI -->
-    <div class="flex flex-col items-center justify-center h-full space-y-4">
-      <div class="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
-      <div class="text-amber-500 font-black animate-pulse text-lg tracking-widest uppercase">Star AI Initializing</div>
-      <button id="emergency-btn" onclick="location.reload()">새로고침하여 다시 시작</button>
+    <!-- 초고속 부팅 로딩 UI -->
+    <div class="flex flex-col items-center justify-center h-full space-y-6">
+      <div class="relative w-16 h-16">
+        <div class="absolute inset-0 border-4 border-amber-500/10 rounded-full"></div>
+        <div class="absolute inset-0 border-4 border-t-amber-500 rounded-full animate-spin"></div>
+      </div>
+      <div class="flex flex-col items-center space-y-2">
+        <div class="loading-text text-amber-500 font-black text-xl tracking-[0.2em] uppercase">Star AI Booting</div>
+        <div class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">System Link Active</div>
+      </div>
+      <button id="emergency-btn" onclick="location.reload()" class="hidden mt-4 px-6 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/30 rounded-full text-xs font-bold transition-all">
+        강제 새로고침
+      </button>
     </div>
   </div>
 
   <script>
-    // 별 배경 생성
+    // 에러 로그 수집
+    const debugConsole = document.getElementById('debug-console');
+    window.onerror = function(msg, url, line) {
+      debugConsole.style.display = 'block';
+      debugConsole.innerHTML += `<div>> ERROR: ${msg} (${line})</div>`;
+    };
+
+    // 별 배경
     const container = document.getElementById('star-container');
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 50; i++) {
       const star = document.createElement('div');
       star.className = 'star';
-      const size = Math.random() * 2 + 0.5;
+      const size = Math.random() * 2;
       star.style.width = size + 'px';
       star.style.height = size + 'px';
       star.style.left = Math.random() * 100 + '%';
       star.style.top = Math.random() * 100 + '%';
-      star.style.setProperty('--duration', (Math.random() * 2 + 1) + 's');
+      star.style.setProperty('--duration', (Math.random() * 1 + 1) + 's');
       container.appendChild(star);
     }
 
-    // 5초 후에도 로딩이 안 되면 비상 버튼 표시
+    // 3초 후 비상 버튼 표시
     setTimeout(() => {
       const btn = document.getElementById('emergency-btn');
-      const root = document.getElementById('root');
-      if (root && root.innerText.includes('Star AI Initializing')) {
-        btn.style.display = 'block';
+      if (document.getElementById('root').innerText.includes('Booting')) {
+        btn.classList.remove('hidden');
       }
-    }, 5000);
+    }, 3000);
   </script>
 
-  <!-- index.tsx 실행 -->
+  <!-- index.tsx 로드 (가장 안정적인 data-type 설정) -->
   <script type="text/babel" data-type="module" data-presets="react,typescript" src="./index.tsx"></script>
 </body>
 </html>
