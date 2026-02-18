@@ -1,0 +1,8 @@
+{
+  "name": "스타ai",
+  "description": "프리미엄 멀티모달 AI 서비스 '스타 AI'.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
