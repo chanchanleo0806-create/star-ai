@@ -1,4 +1,3 @@
-
 export enum AppView {
   CHAT = 'CHAT',
   LIVE = 'LIVE',
@@ -20,6 +19,7 @@ export interface Message {
   timestamp: number;
   groundingUrls?: Array<{ title: string; uri: string }>;
   attachments?: Attachment[];
+  thinkingProcess?: string;
   isThinking?: boolean;
 }
 

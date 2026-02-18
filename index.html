@@ -3,39 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>스타 AI (Star AI)</title>
+  <title>Star AI | Next-Gen Intelligence</title>
+  <!-- Tailwind Play CDN (Development use) -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="index.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #020617;
-      color: #f8fafc;
-      overflow: hidden;
-      margin: 0;
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            star: {
+              primary: '#3b82f6',
+              secondary: '#8b5cf6',
+              accent: '#f59e0b',
+              dark: '#020617',
+              surface: '#0f172a'
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
+        }
+      }
     }
-    #root {
-      height: 100vh;
-      width: 100vw;
-    }
-    .star-bg {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      z-index: -1;
-      background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-    }
-    .star {
-      position: absolute; background: white; border-radius: 50%; opacity: 0.2;
-    }
-    .glass-morphism {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-  </style>
+  </script>
 
   <script type="importmap">
 {
@@ -50,20 +52,20 @@
 }
 </script>
 </head>
-<body>
-  <div class="star-bg" id="star-container"></div>
+<body class="bg-star-dark text-slate-100 antialiased selection:bg-star-primary/30">
+  <div class="star-canvas" id="star-canvas"></div>
   <div id="root"></div>
 
   <script>
-    const container = document.getElementById('star-container');
-    for (let i = 0; i < 40; i++) {
-      const star = document.createElement('div');
-      star.className = 'star';
-      star.style.width = Math.random() * 2 + 'px';
-      star.style.height = star.style.width;
-      star.style.left = Math.random() * 100 + '%';
-      star.style.top = Math.random() * 100 + '%';
-      container.appendChild(star);
+    const canvas = document.getElementById('star-canvas');
+    for (let i = 0; i < 50; i++) {
+      const s = document.createElement('div');
+      s.className = 'star-particle';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top = Math.random() * 100 + '%';
+      s.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+      s.style.setProperty('--delay', Math.random() * 5 + 's');
+      canvas.appendChild(s);
     }
   </script>
 </body>
