@@ -15,12 +15,19 @@
       background-color: #020617;
       color: #f8fafc;
       overflow: hidden;
+      margin: 0;
+    }
+    #root {
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+      z-index: 10;
     }
     .glass-morphism {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
     .star-bg {
       position: fixed;
@@ -28,8 +35,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: -1;
-      background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
+      z-index: 0;
+      background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
     }
     .star {
       position: absolute;
@@ -39,50 +46,41 @@
       animation: twinkle var(--duration) infinite ease-in-out;
     }
     @keyframes twinkle {
-      0%, 100% { opacity: 0.3; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.2); }
-    }
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.2); }
     }
   </style>
 <script type="importmap">
 {
   "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
     "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
   }
 }
 </script>
 </head>
 <body>
-  <div class="star-bg" id="star-bg"></div>
+  <div class="star-bg" id="star-container"></div>
+  <div id="root"></div>
+
   <script>
-    const starBg = document.getElementById('star-bg');
-    for (let i = 0; i < 150; i++) {
+    const container = document.getElementById('star-container');
+    const count = 150;
+    for (let i = 0; i < count; i++) {
       const star = document.createElement('div');
       star.className = 'star';
-      const size = Math.random() * 2 + 1 + 'px';
-      star.style.width = size;
-      star.style.height = size;
-      star.style.top = Math.random() * 100 + '%';
-      star.style.left = Math.random() * 100 + '%';
-      star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
-      starBg.appendChild(star);
+      const size = Math.random() * 2 + 1;
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.left = `${Math.random() * 100}%`;
+      star.style.top = `${Math.random() * 100}%`;
+      star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+      star.style.animationDelay = `${Math.random() * 5}s`;
+      container.appendChild(star);
     }
   </script>
-  <div id="root"></div>
+  <script type="module" src="index.tsx"></script>
 </body>
 </html>

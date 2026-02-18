@@ -161,7 +161,7 @@ const ChatView: React.FC = () => {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       
-      const proSystemInstruction = `
+      const systemInstruction = `
         당신은 고도로 훈련된 '스타 AI'입니다.
         사용자가 텍스트뿐만 아니라 이미지나 파일을 업로드할 수 있습니다.
         이미지가 포함된 경우 시각적 정보를 정밀하게 분석하여 답변에 반영하십시오.
@@ -192,7 +192,7 @@ const ChatView: React.FC = () => {
         model: 'gemini-3-pro-preview',
         contents: historyParts,
         config: {
-          systemInstruction: proSystemInstruction,
+          systemInstruction: systemInstruction,
           thinkingConfig: { thinkingBudget: 15000 },
           tools: [{ googleSearch: {} }]
         },
@@ -258,7 +258,7 @@ const ChatView: React.FC = () => {
               className="flex items-center space-x-2 group focus:outline-none"
             >
               <h2 className="font-bold tracking-tight text-amber-200 group-hover:text-amber-100 transition-colors">
-                {currentSessionId ? sessions.find(s => s.id === currentSessionId)?.title || '대화 중' : '스타 AI 채팅'}
+                {currentSessionId ? sessions.find(s => s.id === currentSessionId)?.title || '대화 중' : '스타 AI'}
               </h2>
               <svg className={`w-4 h-4 text-amber-500 transition-transform duration-300 ${isHistoryOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
@@ -276,7 +276,7 @@ const ChatView: React.FC = () => {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
-                    <span>새로운 대화 시작하기</span>
+                    <span>새로운 대화 시작</span>
                   </button>
                   <div className="border-t border-white/5 my-2"></div>
                   <div className="space-y-1">
@@ -301,7 +301,7 @@ const ChatView: React.FC = () => {
             <button onClick={handleNewChat} className="p-2 hover:bg-white/5 rounded-xl text-slate-400 hover:text-amber-400 transition-colors" title="새 대화">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             </button>
-            <div className="px-3 py-1 rounded-full border bg-amber-500/5 border-amber-500/20 text-amber-500/60 text-[10px] font-bold uppercase tracking-widest hidden sm:block">Star AI Core</div>
+            <div className="px-3 py-1 rounded-full border bg-amber-500/5 border-amber-500/20 text-amber-500/60 text-[10px] font-bold uppercase tracking-widest hidden sm:block">Star AI Engine</div>
         </div>
       </header>
 
@@ -342,7 +342,7 @@ const ChatView: React.FC = () => {
               {m.isThinking ? (
                 <div className="flex items-center space-x-3 py-1">
                   <div className="flex space-x-1.5"><div className="w-2 h-2 rounded-full animate-bounce bg-amber-400"></div><div className="w-2 h-2 rounded-full animate-bounce [animation-delay:-0.15s] bg-amber-400"></div><div className="w-2 h-2 rounded-full animate-bounce [animation-delay:-0.3s] bg-amber-400"></div></div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-amber-500">인텔리전스 분석 중...</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-amber-500">분석 중...</span>
                 </div>
               ) : (
                 <div className="prose prose-invert max-w-none">
@@ -421,7 +421,7 @@ const ChatView: React.FC = () => {
           </div>
         </div>
         <p className="text-center text-[9px] text-slate-600 font-bold uppercase tracking-widest mt-4">
-          Data Encryption & Privacy Shield Active
+          Star Shield Privacy System Active
         </p>
       </div>
     </div>
