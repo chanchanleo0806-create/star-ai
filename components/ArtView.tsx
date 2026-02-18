@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { ImageGeneration } from '../types.ts';
+import { ImageGeneration } from '../types';
 
 const ArtView: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -51,7 +51,7 @@ const ArtView: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
       <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-800 p-6 flex flex-col glass-morphism bg-slate-900/30 overflow-y-auto shrink-0">
-        <h2 className="text-xl font-bold mb-6 hidden md:block">아트 스튜디오</h2>
+        <h2 className="text-xl font-bold mb-6 hidden md:block text-white">아트 스튜디오</h2>
         
         <div className="space-y-6 flex-1">
           <div>
