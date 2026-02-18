@@ -13,16 +13,16 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
     if (!name.trim()) return;
     
     setIsLoading(true);
+    // 부팅 속도 향상을 위해 지연 시간을 300ms로 단축
     setTimeout(() => {
       onLogin(name.trim());
       setIsLoading(false);
-    }, 1000);
+    }, 300);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 w-full h-full relative z-[100]">
-      {/* 로그인 박스 */}
-      <div className="max-w-md w-full glass-morphism p-10 rounded-[2.5rem] border border-white/30 shadow-[0_0_80px_rgba(0,0,0,0.8)] space-y-8 animate-in fade-in zoom-in duration-700 bg-slate-900/90">
+      <div className="max-w-md w-full glass-morphism p-10 rounded-[2.5rem] border border-white/30 shadow-[0_0_80px_rgba(0,0,0,0.8)] space-y-8 animate-in fade-in zoom-in duration-500 bg-slate-900/90">
         <div className="text-center space-y-4">
           <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.6)] mb-2 border border-white/20">
             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
