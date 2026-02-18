@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   
-  <!-- Babel Standalone -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <style>
@@ -31,7 +30,7 @@
       background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
     }
     .star {
-      position: absolute; background: white; border-radius: 50%; opacity: 0.3;
+      position: absolute; background: white; border-radius: 50%; opacity: 0.2;
     }
   </style>
 
@@ -53,9 +52,8 @@
   <div id="root"></div>
 
   <script>
-    // 배경 별 생성 (최소화)
     const container = document.getElementById('star-container');
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 20; i++) {
       const star = document.createElement('div');
       star.className = 'star';
       star.style.width = Math.random() * 2 + 'px';
@@ -66,7 +64,6 @@
     }
   </script>
 
-  <!-- index.tsx 로드 -->
   <script type="text/babel" data-type="module" data-presets="react,typescript" src="./index.tsx"></script>
 </body>
 </html>

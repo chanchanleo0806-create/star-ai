@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppView } from '../types';
 
 interface SidebarProps {
@@ -10,6 +10,33 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, userName, onLogout }) => {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('ko-KR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short'
+    });
+  };
+
   const menuItems = [
     { id: AppView.CHAT, label: '스타 AI 채팅', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
     { id: AppView.LIVE, label: '음성 대화', icon: 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z' },
@@ -17,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, userName, 
   ];
 
   return (
-    <aside className="w-64 glass-morphism h-full flex flex-col border-r border-white/5 hidden md:flex">
+    <aside className="w-64 glass-morphism h-full flex flex-col border-r border-white/5 hidden md:flex bg-slate-900/50">
       <div className="p-8">
         <div className="flex items-center space-x-2 mb-1">
           <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] text-white font-bold bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]">
@@ -59,8 +86,18 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, userName, 
         </div>
       </nav>
 
-      <div className="p-4 border-t border-white/5 bg-black/20">
-        <div className="flex items-center justify-between bg-slate-800/40 p-3 rounded-2xl border border-white/5 mb-3">
+      <div className="p-4 space-y-4 border-t border-white/5 bg-black/20">
+        {/* 디지털 시계 표시 섹션 */}
+        <div className="bg-slate-900/60 p-4 rounded-2xl border border-white/5 text-center space-y-1 shadow-inner">
+          <div className="text-2xl font-black tracking-tighter text-amber-400 font-mono">
+            {formatTime(currentTime)}
+          </div>
+          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
+            {formatDate(currentTime)}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between bg-slate-800/40 p-3 rounded-2xl border border-white/5">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-lg bg-gradient-to-br from-amber-500 to-yellow-600">
               {userName.charAt(0).toUpperCase()}

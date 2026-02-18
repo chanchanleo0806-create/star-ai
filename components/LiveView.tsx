@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Modality, LiveServerMessage, Blob } from '@google/genai';
 
@@ -13,7 +12,6 @@ const LiveView: React.FC = () => {
   const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Correct manual encode as per guidelines
   const encode = (bytes: Uint8Array) => {
     let binary = '';
     const len = bytes.byteLength;
@@ -23,7 +21,6 @@ const LiveView: React.FC = () => {
     return btoa(binary);
   };
 
-  // Correct manual decode as per guidelines
   const decode = (base64: string) => {
     const binaryString = atob(base64);
     const len = binaryString.length;
@@ -34,7 +31,6 @@ const LiveView: React.FC = () => {
     return bytes;
   };
 
-  // Correct manual audio decoding as per guidelines
   const decodeAudioData = async (
     data: Uint8Array,
     ctx: AudioContext,
@@ -72,7 +68,6 @@ const LiveView: React.FC = () => {
   const startSession = async () => {
     setIsConnecting(true);
     try {
-      // Fixed: Initializing GoogleGenAI with process.env.API_KEY directly
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -85,7 +80,6 @@ const LiveView: React.FC = () => {
         model: 'gemini-2.5-flash-native-audio-preview-12-2025',
         callbacks: {
           onopen: () => {
-            console.log('Voice session opened');
             setIsActive(true);
             setIsConnecting(false);
 
@@ -104,7 +98,6 @@ const LiveView: React.FC = () => {
                 mimeType: 'audio/pcm;rate=16000',
               };
               
-              // Rely on sessionPromise to send input to avoid race condition or stale closure
               sessionPromise.then((session) => {
                 session.sendRealtimeInput({ media: pcmBlob });
               });
@@ -114,12 +107,10 @@ const LiveView: React.FC = () => {
             scriptProcessor.connect(inputCtx.destination);
           },
           onmessage: async (message: LiveServerMessage) => {
-            // Correct extraction of audio data
             const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
             if (base64Audio) {
               const ctx = audioContextRef.current;
               if (ctx) {
-                // Tracking nextStartTime for smooth playback as per guidelines
                 nextStartTimeRef.current = Math.max(nextStartTimeRef.current, ctx.currentTime);
                 const buffer = await decodeAudioData(decode(base64Audio), ctx, 24000, 1);
                 const source = ctx.createBufferSource();
@@ -133,10 +124,10 @@ const LiveView: React.FC = () => {
             }
 
             if (message.serverContent?.inputTranscription) {
-                setTranscription(prev => [...prev.slice(-4), `나: ${message.serverContent?.inputTranscription?.text}`]);
+                setTranscription(prev => [...prev.slice(-6), `나: ${message.serverContent?.inputTranscription?.text}`]);
             }
             if (message.serverContent?.outputTranscription) {
-                setTranscription(prev => [...prev.slice(-4), `Gemini: ${message.serverContent?.outputTranscription?.text}`]);
+                setTranscription(prev => [...prev.slice(-6), `스타: ${message.serverContent?.outputTranscription?.text}`]);
             }
             if (message.serverContent?.interrupted) {
               sourcesRef.current.forEach(s => s.stop());
@@ -149,7 +140,6 @@ const LiveView: React.FC = () => {
             stopSession();
           },
           onclose: () => {
-            console.log('Voice session closed');
             stopSession();
           }
         },
@@ -158,7 +148,7 @@ const LiveView: React.FC = () => {
           speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
           inputAudioTranscription: {},
           outputAudioTranscription: {},
-          systemInstruction: '당신은 친절하고 따뜻한 한국어 AI 어시스턴트입니다. 실시간 음성 대화를 통해 사용자에게 도움을 줍니다.'
+          systemInstruction: '당신은 스타 AI의 실시간 보이스 엔진입니다. 사용자에게 예의 바르고 명쾌하게 대답하십시오.'
         }
       });
 
@@ -170,61 +160,56 @@ const LiveView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center bg-slate-900 p-8">
-      <div className="max-w-md w-full glass-morphism p-10 rounded-3xl border border-slate-700/50 flex flex-col items-center space-y-12 text-center shadow-2xl relative overflow-hidden">
+    <div className="flex-1 flex flex-col items-center justify-center bg-slate-950/20 p-4 md:p-8">
+      <div className="max-w-md w-full glass-morphism p-6 md:p-10 rounded-[2.5rem] border border-white/10 flex flex-col items-center space-y-8 md:space-y-12 text-center shadow-2xl relative overflow-hidden bg-slate-900/60">
         
-        <div className="absolute top-4 right-4">
-           <div className={`flex items-center space-x-2 px-3 py-1 rounded-full border ${isActive ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-red-500/10 border-red-500/30 text-red-400'}`}>
-              <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-              <span className="text-[10px] font-bold uppercase tracking-widest">{isActive ? '라이브' : '오프라인'}</span>
-           </div>
+        <div className="flex flex-col items-center space-y-2">
+          <div className={`px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-[0.2em] transition-all ${isActive ? 'bg-green-500/20 border-green-500/40 text-green-400' : 'bg-slate-800 border-white/5 text-slate-500'}`}>
+            {isActive ? 'Live Interaction' : 'Standby Mode'}
+          </div>
+          <h2 className="text-2xl md:text-3xl font-black tracking-tight">음성 엔진</h2>
         </div>
 
-        <div className="space-y-4">
-          <h2 className="text-3xl font-bold">음성 어시스턴트</h2>
-          <p className="text-slate-400 text-sm">Gemini와 자연스럽게 대화하세요. 저지연 멀티모달 상호작용을 지원합니다.</p>
-        </div>
-
-        <div className="relative flex items-center justify-center h-48 w-48">
-          {/* Animated rings */}
-          <div className={`absolute inset-0 rounded-full border-2 border-blue-500/20 ${isActive ? 'animate-[ping_3s_infinite]' : ''}`}></div>
-          <div className={`absolute inset-4 rounded-full border-2 border-indigo-500/30 ${isActive ? 'animate-[ping_2s_infinite]' : ''}`}></div>
-          <div className={`absolute inset-8 rounded-full border-2 border-purple-500/40 ${isActive ? 'animate-[ping_1.5s_infinite]' : ''}`}></div>
+        <div className="relative flex items-center justify-center h-40 w-40 md:h-56 md:w-56">
+          <div className={`absolute inset-0 rounded-full border-2 border-amber-500/20 ${isActive ? 'animate-[ping_3s_infinite]' : ''}`}></div>
+          <div className={`absolute inset-6 rounded-full border-2 border-amber-500/30 ${isActive ? 'animate-[ping_2s_infinite]' : ''}`}></div>
           
           <button
             onClick={isActive ? stopSession : startSession}
             disabled={isConnecting}
-            className={`relative z-10 w-32 h-32 rounded-full flex items-center justify-center transition-all transform active:scale-95 shadow-xl ${
+            className={`relative z-10 w-28 h-28 md:w-40 md:h-40 rounded-full flex items-center justify-center transition-all transform active:scale-90 shadow-2xl ${
               isActive 
                 ? 'bg-red-500 hover:bg-red-600 shadow-red-900/40' 
-                : 'bg-blue-600 hover:bg-blue-500 shadow-blue-900/40'
+                : 'bg-amber-600 hover:bg-amber-500 shadow-amber-900/40'
             }`}
           >
             {isConnecting ? (
-              <svg className="animate-spin h-10 w-10 text-white" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-8 w-8 text-white" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             ) : isActive ? (
-              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg className="w-10 h-10 md:w-16 md:h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
-              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              <svg className="w-10 h-10 md:w-16 md:h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
               </svg>
             )}
           </button>
         </div>
 
-        <div className="w-full bg-slate-950/50 p-4 rounded-2xl min-h-[100px] text-xs font-mono text-slate-500 text-left border border-slate-800">
-           <div className="mb-2 text-[10px] text-slate-600 font-bold uppercase">대화 기록</div>
+        <div className="w-full bg-slate-950/80 p-5 rounded-3xl min-h-[120px] text-xs font-bold text-slate-400 text-left border border-white/5 space-y-2">
+           <div className="text-[10px] text-amber-500 uppercase tracking-widest mb-2 border-b border-white/5 pb-2">Real-time Transcription</div>
            {transcription.length > 0 ? (
              transcription.map((t, i) => (
-               <div key={i} className={`mb-1 ${t.startsWith('Gemini') ? 'text-blue-400' : 'text-slate-300'}`}>{t}</div>
+               <div key={i} className={`animate-in fade-in slide-in-from-bottom-1 duration-300 ${t.startsWith('스타') ? 'text-amber-200' : 'text-slate-300'}`}>
+                 {t}
+               </div>
              ))
            ) : (
-             <div className="italic text-slate-700">음성 입력을 기다리는 중...</div>
+             <div className="italic text-slate-700 h-full flex items-center justify-center">대화를 시작하세요...</div>
            )}
         </div>
       </div>
