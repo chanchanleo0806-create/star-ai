@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { AppView } from '../types';
+import { AppView } from '../types.ts';
 
 interface SidebarProps {
   currentView: AppView;
@@ -87,7 +86,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, userName, 
       </nav>
 
       <div className="p-4 space-y-4 border-t border-white/5 bg-black/20">
-        {/* 디지털 시계 표시 섹션 */}
         <div className="bg-slate-900/60 p-4 rounded-2xl border border-white/5 text-center space-y-1 shadow-inner">
           <div className="text-2xl font-black tracking-tighter text-amber-400 font-mono">
             {formatTime(currentTime)}

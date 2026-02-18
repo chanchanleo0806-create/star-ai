@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { ImageGeneration } from '../types';
+import { ImageGeneration } from '../types.ts';
 
 const ArtView: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -50,7 +50,6 @@ const ArtView: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
-      {/* Control Panel */}
       <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-800 p-6 flex flex-col glass-morphism bg-slate-900/30 overflow-y-auto shrink-0">
         <h2 className="text-xl font-bold mb-6 hidden md:block">아트 스튜디오</h2>
         
@@ -61,7 +60,7 @@ const ArtView: React.FC = () => {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="무엇을 그려드릴까요?"
-              className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm h-24 md:h-32 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none resize-none transition-all"
+              className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm h-24 md:h-32 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none resize-none transition-all text-white"
             />
           </div>
 
@@ -106,7 +105,6 @@ const ArtView: React.FC = () => {
         </div>
       </div>
 
-      {/* Results Area */}
       <div className="flex-1 bg-slate-950 overflow-y-auto p-4 md:p-10">
         {history.length === 0 && !isGenerating ? (
           <div className="h-full flex flex-col items-center justify-center text-center opacity-30 p-10">
@@ -115,7 +113,7 @@ const ArtView: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
              </div>
-             <p className="text-sm font-bold">생성된 이미지가 여기에 나타납니다</p>
+             <p className="text-sm font-bold text-white">생성된 이미지가 여기에 나타납니다</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
@@ -125,11 +123,11 @@ const ArtView: React.FC = () => {
               </div>
             )}
             {history.map(item => (
-              <div key={item.id} className="group relative bg-slate-900 rounded-3xl overflow-hidden shadow-xl border border-white/5">
+              <div key={item.id} className="group relative bg-slate-900 rounded-3xl overflow-hidden shadow-xl border border-white/5 transition-transform hover:scale-[1.02]">
                 <img src={item.imageUrl} alt={item.prompt} className="w-full h-auto object-cover" />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                    <p className="text-xs text-slate-300 line-clamp-2 mb-3">{item.prompt}</p>
-                   <a href={item.imageUrl} download={`star-ai-${item.id}.png`} className="block w-full py-2 bg-white/10 hover:bg-white/20 rounded-xl text-center text-xs font-bold backdrop-blur-md transition-all">
+                   <a href={item.imageUrl} download={`star-ai-${item.id}.png`} className="block w-full py-2 bg-white/10 hover:bg-white/20 rounded-xl text-center text-xs font-bold backdrop-blur-md transition-all text-white">
                      저장하기
                    </a>
                 </div>

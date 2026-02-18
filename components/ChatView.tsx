@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, GenerateContentResponse } from '@google/genai';
-import { Message, ChatSession, Attachment } from '../types';
+import { Message, ChatSession, Attachment } from '../types.ts';
 
 const ChatView: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -8,11 +8,9 @@ const ChatView: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [selectedAttachments, setSelectedAttachments] = useState<Attachment[]>([]);
   
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const savedSessions = localStorage.getItem('star_ai_sessions');
@@ -91,29 +89,29 @@ const ChatView: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col h-full bg-slate-950/20">
       <header className="px-8 py-4 border-b border-white/5 flex items-center justify-between">
-        <h2 className="font-bold text-amber-200">스타 AI</h2>
-        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Live Engine</div>
+        <h2 className="font-bold text-amber-200">스타 AI 채팅</h2>
+        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Powered by Gemini 3</div>
       </header>
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
         {messages.map((m) => (
           <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] rounded-2xl px-5 py-3 ${m.role === 'user' ? 'bg-amber-600 text-white' : 'bg-slate-900 border border-white/10'}`}>
-              {m.isThinking ? <span className="text-xs text-amber-500 animate-pulse font-bold">● ● ●</span> : <div className="whitespace-pre-wrap text-sm">{m.content}</div>}
+            <div className={`max-w-[85%] rounded-2xl px-5 py-3 ${m.role === 'user' ? 'bg-amber-600 text-white shadow-lg' : 'bg-slate-900 border border-white/10'}`}>
+              {m.isThinking ? <span className="text-xs text-amber-500 animate-pulse font-bold">생각 중...</span> : <div className="whitespace-pre-wrap text-sm leading-relaxed">{m.content}</div>}
             </div>
           </div>
         ))}
       </div>
-      <div className="p-6 border-t border-white/5">
-        <div className="max-w-4xl mx-auto flex items-center space-x-3 bg-slate-900 rounded-full px-5 py-2 border border-white/10">
+      <div className="p-6 border-t border-white/5 bg-slate-900/40">
+        <div className="max-w-4xl mx-auto flex items-center space-x-3 bg-slate-950 rounded-full px-5 py-2 border border-white/10 focus-within:border-amber-500/50 transition-all shadow-xl">
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder="메시지를 입력하세요..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3"
+            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 text-white"
           />
-          <button onClick={handleSendMessage} disabled={isLoading} className="p-3 rounded-full bg-amber-600 text-white disabled:opacity-50">
+          <button onClick={handleSendMessage} disabled={isLoading} className="p-3 rounded-full bg-amber-600 text-white disabled:opacity-50 hover:bg-amber-500 transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
           </button>
         </div>

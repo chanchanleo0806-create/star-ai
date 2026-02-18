@@ -11,14 +11,7 @@
   "dependencies": {
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "@google/genai": "1.41.0",
-    "./App.tsx": "latest",
-    "./types": "latest",
-    "./components/Sidebar": "latest",
-    "./components/ChatView": "latest",
-    "./components/LiveView": "latest",
-    "./components/ArtView": "latest",
-    "./components/LoginView": "latest"
+    "@google/genai": "1.41.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { AppView } from './types';
-import Sidebar from './components/Sidebar';
-import ChatView from './components/ChatView';
-import LiveView from './components/LiveView';
-import ArtView from './components/ArtView';
-import LoginView from './components/LoginView';
+import { AppView } from './types.ts';
+import Sidebar from './components/Sidebar.tsx';
+import ChatView from './components/ChatView.tsx';
+import LiveView from './components/LiveView.tsx';
+import ArtView from './components/ArtView.tsx';
+import LoginView from './components/LoginView.tsx';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.CHAT);
@@ -13,7 +13,6 @@ const App: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    // 초기 기동 시 저장된 유저 확인
     const savedUser = localStorage.getItem('star_ai_user');
     if (savedUser) {
       setUserName(savedUser);
@@ -36,7 +35,6 @@ const App: React.FC = () => {
     setUserName('');
   };
 
-  // 로그인되지 않은 상태면 즉시 로그인 뷰 반환
   if (!isLoggedIn) {
     return <LoginView onLogin={handleLogin} />;
   }
@@ -58,7 +56,6 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-transparent overflow-hidden text-slate-100 flex-col md:flex-row">
-      {/* PC 사이드바 */}
       <Sidebar 
         currentView={currentView} 
         onViewChange={setCurrentView} 
@@ -66,7 +63,6 @@ const App: React.FC = () => {
         onLogout={handleLogout}
       />
 
-      {/* 모바일 상단 바 */}
       <header className="md:hidden flex items-center justify-between px-6 py-4 bg-slate-900/80 border-b border-white/5 backdrop-blur-md">
         <div className="flex items-center space-x-2">
           <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] text-white font-bold bg-amber-500">S</div>
@@ -84,12 +80,10 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* 메인 콘텐츠 구역 */}
       <main className="flex-1 relative flex flex-col overflow-hidden pb-[72px] md:pb-0">
         {renderView()}
       </main>
 
-      {/* 모바일 하단 네비게이션 */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 h-[72px] bg-slate-900/95 border-t border-white/10 backdrop-blur-xl flex items-center justify-around px-4 z-[50]">
         {navItems.map((item) => (
           <button
