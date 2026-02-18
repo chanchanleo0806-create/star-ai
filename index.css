@@ -1,11 +1,52 @@
+:root {
+  --star-primary: #3b82f6;
+  --star-primary-hover: #2563eb;
+  --star-secondary: #8b5cf6;
+  --star-accent: #f59e0b;
+  --star-dark: #020617;
+  --star-surface: rgba(15, 23, 42, 0.7);
+  --star-border: rgba(255, 255, 255, 0.08);
+  --star-text-main: #f8fafc;
+  --star-text-muted: #94a3b8;
+  --star-text-dark: #64748b;
+  --star-radius: 1.5rem;
+  --star-radius-lg: 2.5rem;
+  --star-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
   padding: 0;
   font-family: 'Pretendard', sans-serif;
+  color: var(--star-text-main);
+  background-color: var(--star-dark);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
   overflow: hidden;
-  background-color: #020617;
 }
 
+/* Layout Utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.flex-1 { flex: 1; }
+.h-full { height: 100%; }
+.w-full { width: 100%; }
+.overflow-hidden { overflow: hidden; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.hidden { display: none; }
+
+@media (min-width: 768px) {
+  .md-flex { display: flex; }
+  .md-hidden { display: none; }
+}
+
+/* Base Styles */
 .star-canvas {
   position: fixed;
   inset: 0;
@@ -32,58 +73,104 @@ body {
 }
 
 .glass {
-  background: rgba(15, 23, 42, 0.7);
+  background: var(--star-surface);
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--star-border);
 }
 
-.ai-orb-container {
-  position: relative;
+.gradient-text {
+  background: linear-gradient(135deg, #fff 20%, var(--star-text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Component Styles */
+.sidebar-container {
+  width: 260px;
+  height: 100vh;
+  border-right: 1px solid var(--star-border);
+  flex-shrink: 0;
+}
+
+.chat-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+  flex: 1;
 }
 
-.ai-orb-layer {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(15px);
-  mix-blend-mode: screen;
+.chat-header {
+  height: 64px;
+  padding: 0 2rem;
+  border-bottom: 1px solid var(--star-border);
+}
+
+.message-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.input-container {
+  padding: 2rem;
+  background: linear-gradient(to top, var(--star-dark), transparent);
+}
+
+.input-box {
+  max-width: 900px;
+  margin: 0 auto;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--star-border);
+  border-radius: var(--star-radius-lg);
+  padding: 0.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.btn-primary {
+  background: var(--star-primary);
+  color: white;
+  border: none;
+  border-radius: var(--star-radius);
+  padding: 0.8rem 1.5rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--star-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  background: #1e293b;
+  color: #475569;
+  cursor: not-allowed;
+}
+
+/* Thinking Orb */
+.orb-canvas {
+  width: 320px;
+  height: 320px;
+  cursor: pointer;
 }
 
 .thinking-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(59, 130, 246, 0.1),
-    rgba(59, 130, 246, 0.2),
-    rgba(59, 130, 246, 0.1),
-    transparent
-  );
+  height: 6px;
+  width: 150px;
+  background: linear-gradient(90deg, transparent, var(--star-primary), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite linear;
+  border-radius: 3px;
 }
 
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, #fff 20%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.citation-card {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.citation-card:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(59, 130, 246, 0.3);
 }
 
 /* Custom Scrollbar */

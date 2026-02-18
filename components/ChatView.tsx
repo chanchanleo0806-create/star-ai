@@ -1,43 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI, GenerateContentResponse } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { Message, Attachment } from '../types';
 
 const ChatView: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedAttachments, setSelectedAttachments] = useState<Attachment[]>([]);
-  const [isSearchMode, setIsSearchMode] = useState(true);
-  
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-    }
+    if (scrollRef.current) scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const base64 = (ev.target?.result as string).split(',')[1];
-        setSelectedAttachments(prev => [...prev, { name: file.name, mimeType: file.type, data: base64, url: URL.createObjectURL(file) }]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleSendMessage = async () => {
-    if ((!inputValue.trim() && selectedAttachments.length === 0) || isLoading) return;
-
-    const userMsg: Message = { id: Date.now().toString(), role: 'user', content: inputValue, timestamp: Date.now(), attachments: selectedAttachments.length > 0 ? [...selectedAttachments] : undefined };
+    if (!inputValue.trim() || isLoading) return;
+    const userMsg: Message = { id: Date.now().toString(), role: 'user', content: inputValue, timestamp: Date.now() };
     setMessages(prev => [...prev, userMsg]);
     setInputValue('');
-    setSelectedAttachments([]);
     setIsLoading(true);
 
     const botMsgId = (Date.now() + 1).toString();
@@ -45,127 +24,99 @@ const ChatView: React.FC = () => {
 
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const contents = [...messages, userMsg].map(m => {
-        const parts: any[] = [{ text: m.content }];
-        m.attachments?.forEach(att => parts.push({ inlineData: { mimeType: att.mimeType, data: att.data } }));
-        return { role: m.role, parts };
-      });
-
       const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
-        contents,
-        config: {
-          thinkingConfig: { thinkingBudget: 15000 },
-          tools: isSearchMode ? [{ googleSearch: {} }] : undefined
-        }
+        contents: [...messages, userMsg].map(m => ({ role: m.role, parts: [{ text: m.content }] })),
+        config: { thinkingConfig: { thinkingBudget: 15000 } }
       });
-
-      const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-      const groundingUrls = groundingChunks?.map((chunk: any) => ({ title: chunk.web?.title || "정보 원천", uri: chunk.web?.uri })).filter((item: any) => item.uri);
-
-      setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, content: response.text || "", isThinking: false, groundingUrls: groundingUrls && groundingUrls.length > 0 ? groundingUrls : undefined } : m));
+      setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, content: response.text || "", isThinking: false } : m));
     } catch (error) {
-      setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, content: "죄송합니다. 오류가 발생했습니다.", isThinking: false } : m));
+      setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, content: "오류가 발생했습니다.", isThinking: false } : m));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden">
-      <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 glass z-10 shrink-0">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" /></svg>
+    <div className="chat-container">
+      <header className="chat-header glass flex items-center justify-between">
+        <div className="flex items-center" style={{ gap: '0.75rem' }}>
+          <div className="flex items-center justify-center" style={{ width: '2rem', height: '2rem', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+            <svg style={{ width: '1rem', height: '1rem', color: '#3b82f6' }} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" /></svg>
           </div>
-          <span className="font-black tracking-tighter text-lg gradient-text">Chat Pro</span>
+          <span className="gradient-text" style={{ fontWeight: 900, fontSize: '1.125rem' }}>Chat Pro</span>
         </div>
-        <button 
-          onClick={() => setIsSearchMode(!isSearchMode)}
-          className={`flex items-center space-x-2 px-3 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${isSearchMode ? 'bg-blue-500/10 border-blue-500/40 text-blue-400' : 'bg-slate-800 border-white/5 text-slate-500'}`}
-        >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeWidth="2.5" /></svg>
-          <span>{isSearchMode ? 'Deep Search On' : 'Search Off'}</span>
-        </button>
+        <div style={{ padding: '0.375rem 0.75rem', borderRadius: '1rem', background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase' }}>
+          Engine Active
+        </div>
       </header>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 md:p-10 space-y-10">
+      <div ref={scrollRef} className="message-area">
         {messages.length === 0 && (
-          <div className="h-full flex flex-col items-center justify-center opacity-30 text-center space-y-4">
-             <div className="w-20 h-20 rounded-3xl bg-slate-900 border border-white/5 flex items-center justify-center animate-float">
-                <svg className="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" strokeWidth="1.5" /></svg>
-             </div>
-             <div>
-               <h3 className="text-2xl font-black text-white">반갑습니다, {localStorage.getItem('star_ai_user')}님</h3>
-               <p className="text-sm font-bold">무엇이든 물어보세요. 지능적인 답변을 드릴게요.</p>
-             </div>
+          <div className="flex-1 flex flex-col items-center justify-center" style={{ opacity: 0.3, textAlign: 'center' }}>
+            {/* Fix: Corrected justifyCenter to justifyContent */}
+            <div style={{ width: '5rem', height: '5rem', borderRadius: '1.5rem', background: '#0f172a', border: '1px solid var(--star-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+               <svg style={{ width: '2.5rem', height: '2.5rem', color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" strokeWidth="1.5" /></svg>
+            </div>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', margin: 0 }}>Star AI Intelligence</h3>
+            <p style={{ fontSize: '0.875rem', fontWeight: 700 }}>대화를 시작해 보세요.</p>
           </div>
         )}
 
         {messages.map((m) => (
-          <div key={m.id} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2 duration-500`}>
-            {m.attachments && (
-              <div className="flex gap-2 mb-3">
-                {m.attachments.map((att, i) => <img key={i} src={att.url} className="w-32 h-32 rounded-2xl object-cover border border-white/10 shadow-lg" alt="upload" />)}
-              </div>
-            )}
-            <div className={`max-w-[85%] rounded-[2rem] px-6 py-4 shadow-xl ${m.role === 'user' ? 'bg-blue-600 text-white shadow-blue-900/20' : 'glass border-white/10'}`}>
+          <div key={m.id} className="flex flex-col" style={{ alignItems: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
+            <div className="glass" style={{
+              maxWidth: '80%',
+              padding: '1rem 1.5rem',
+              borderRadius: '2rem',
+              background: m.role === 'user' ? 'var(--star-primary)' : 'var(--star-surface)',
+              border: 'none',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+            }}>
               {m.isThinking ? (
-                <div className="space-y-3 py-1">
-                  <div className="flex items-center space-x-2">
-                    <div className="flex space-x-1">
-                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></div>
-                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                    </div>
-                    <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Star Engine Reasoning...</span>
-                  </div>
-                  <div className="h-1.5 w-48 bg-slate-800 rounded-full overflow-hidden">
-                     <div className="h-full thinking-shimmer rounded-full"></div>
+                <div className="flex flex-col" style={{ gap: '0.5rem' }}>
+                  <div className="flex items-center" style={{ gap: '0.5rem' }}>
+                    <div className="thinking-shimmer"></div>
+                    <span style={{ fontSize: '9px', fontWeight: 900, color: '#60a5fa', textTransform: 'uppercase' }}>Reasoning...</span>
                   </div>
                 </div>
               ) : (
-                <div className="text-sm font-medium leading-relaxed whitespace-pre-wrap">{m.content}</div>
-              )}
-              {!m.isThinking && m.groundingUrls && (
-                <div className="mt-5 pt-4 border-t border-white/5 space-y-3">
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Verified Sources</p>
-                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {m.groundingUrls.map((url, i) => (
-                        <a key={i} href={url.uri} target="_blank" rel="noopener noreferrer" className="citation-card flex items-center space-x-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl">
-                          <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-                            <svg className="w-3 h-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" strokeWidth="2" /></svg>
-                          </div>
-                          <span className="text-[10px] font-bold text-slate-300 truncate">{url.title}</span>
-                        </a>
-                      ))}
-                   </div>
-                </div>
+                <div style={{ fontSize: '0.875rem', fontWeight: 500, whiteSpace: 'pre-wrap' }}>{m.content}</div>
               )}
             </div>
-            <span className="text-[8px] font-black text-slate-600 mt-2 px-3 uppercase tracking-tighter opacity-50">
-              {new Date(m.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}
+            <span style={{ fontSize: '8px', fontWeight: 900, color: 'var(--star-text-dark)', marginTop: '0.5rem', padding: '0 0.75rem', textTransform: 'uppercase' }}>
+              {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
         ))}
       </div>
 
-      <div className="p-6 md:p-10 bg-gradient-to-t from-star-dark to-transparent shrink-0">
-        <div className="max-w-4xl mx-auto flex items-end space-x-3 bg-slate-900/80 p-2 rounded-[2.5rem] border border-white/5 shadow-2xl focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
-          <button onClick={() => fileInputRef.current?.click()} className="p-4 text-slate-500 hover:text-blue-400 transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" strokeWidth="2" /></svg>
-          </button>
-          <input type="file" ref={fileInputRef} className="hidden" accept="image/*" multiple onChange={handleFileChange} />
+      <div className="input-container">
+        <div className="input-box flex items-center">
           <textarea
             rows={1}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
             placeholder="스타 AI에게 물어보세요..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-slate-100 placeholder:text-slate-600 py-4 px-2 resize-none max-h-40 font-bold"
+            style={{
+              flex: 1,
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              color: 'white',
+              padding: '1rem',
+              resize: 'none',
+              fontWeight: 700
+            }}
           />
-          <button onClick={handleSendMessage} disabled={isLoading} className={`p-4 rounded-[1.5rem] transition-all ${isLoading || (!inputValue.trim() && selectedAttachments.length === 0) ? 'bg-slate-800 text-slate-600' : 'bg-blue-600 text-white shadow-lg hover:bg-blue-500'}`}>
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" strokeWidth="2.5" /></svg>
+          <button 
+            onClick={handleSendMessage} 
+            disabled={isLoading || !inputValue.trim()}
+            className="btn-primary"
+            style={{ margin: '0.25rem' }}
+          >
+            <svg style={{ width: '1.25rem', height: '1.25rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" strokeWidth="2.5" /></svg>
           </button>
         </div>
       </div>
