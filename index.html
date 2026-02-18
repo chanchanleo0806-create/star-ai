@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -9,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Babel for running TSX in browser (GitHub Pages specific fix) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
   <style>
     body {
       font-family: 'Inter', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
@@ -24,7 +27,7 @@
       z-index: 10;
     }
     .glass-morphism {
-      background: rgba(15, 23, 42, 0.7); /* 불투명도 약간 증가 */
+      background: rgba(15, 23, 42, 0.7);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -49,8 +52,20 @@
       0%, 100% { opacity: 0.2; transform: scale(1); }
       50% { opacity: 0.7; transform: scale(1.2); }
     }
+    #error-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 2rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
   </style>
-<script type="importmap">
+
+  <script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@19.0.0",
@@ -64,10 +79,12 @@
 </script>
 </head>
 <body>
+  <div id="error-overlay"></div>
   <div class="star-bg" id="star-container"></div>
   <div id="root"></div>
 
   <script>
+    // Star background animation
     const container = document.getElementById('star-container');
     const count = 150;
     for (let i = 0; i < count; i++) {
@@ -82,7 +99,17 @@
       star.style.animationDelay = `${Math.random() * 5}s`;
       container.appendChild(star);
     }
+
+    // Error logging to screen
+    window.onerror = function(msg, url, line) {
+      const overlay = document.getElementById('error-overlay');
+      overlay.style.display = 'block';
+      overlay.textContent += `Error: ${msg}\nAt: ${url}:${line}\n\n`;
+      return false;
+    };
   </script>
-  <script type="module" src="./index.tsx"></script>
+
+  <!-- Load index.tsx via Babel to handle TSX on GitHub Pages -->
+  <script type="text/babel" data-type="module" src="./index.tsx"></script>
 </body>
 </html>
